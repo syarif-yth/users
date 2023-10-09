@@ -7,7 +7,6 @@ class Migrate extends MX_Controller
   {
     parent::__construct();
     $this->load->library('migration');
-		$this->load->helper('tree_helper');
   }
 
 	public function index()
