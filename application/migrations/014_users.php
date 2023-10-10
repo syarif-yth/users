@@ -6,6 +6,7 @@ class Migration_users extends CI_migration
 	private $tb_name;
 	private $tb_engine;
 	private $tb_field;
+	private $tb_key;
 
 	function __construct()
 	{
@@ -21,7 +22,7 @@ class Migration_users extends CI_migration
 		$field = array(
 			'nip' => array(
 				'type' => 'VARCHAR',
-				'constraint' => 15,
+				'constraint' => 20,
 				'null' => false,
 				'unique' => true),
 			'email' => array(
@@ -42,7 +43,9 @@ class Migration_users extends CI_migration
 				'type' => 'VARCHAR',
 				'constraint' => 255,
 				'null' => true,
-				'default' => 'New User')
+				'default' => 'New User'),
+			'date_created datetime default CURRENT_TIMESTAMP',
+			'date_modify datetime default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP'
 		);
 		return $field;
 	}
@@ -59,14 +62,6 @@ class Migration_users extends CI_migration
 		return $data;
 	}
 
-	// private function set_attr($nip)
-	// {
-	// 	$data[] = array(
-	// 		'nip' => $nip,
-	// 		'email' => 'syarif.yth@gmail.com');
-	// 	return $data;
-	// }
-
 	public function up()
 	{
 		$exis = $this->db->table_exists($this->tb_name);
@@ -75,14 +70,12 @@ class Migration_users extends CI_migration
 			$this->dbforge->add_key($this->tb_key, TRUE);
 			$this->dbforge->create_table($this->tb_name, FALSE, $this->tb_engine);
 
-			$this->load->helper('input');
-			$nip = create_nip();
-			$users = $this->set_users($nip);
-			// $attr = $this->set_attr($nip);
+			$this->load->helper('starterkit');
+			$user_id = create_uid();
+			$users = $this->set_users($user_id);
 
 			$this->load->database();
 			$this->db->insert_batch($this->tb_name, $users);
-			// $this->db->insert_batch('attr_users', $attr);
 		}
 	}
 

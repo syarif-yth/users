@@ -5,19 +5,22 @@ require APPPATH."libraries/RestController.php";
 
 use chriskacerguis\RestServer\RestController;
 
-class Create extends RestController 
+class Login extends RestController 
 {
 	var $nip;
 	function __construct()
 	{
 		parent::__construct();
-		$this->load->library('token');
 		$this->nip = '20231009165242';
+		$this->load->library('token');
 	}
 
-	function index_get()
+	function index_post()
 	{
-		$res = $this->token->create($this->nip);
-		$this->response($res['body'], $res['code']);
+		$auth = $this->token->create($this->nip);
+		$res['status'] = true;
+		$res['message'] = 'Login';
+		$res['auth'] = $auth['body'];
+		$this->response($res);
 	}
 }

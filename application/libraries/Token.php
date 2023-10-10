@@ -26,6 +26,7 @@ class Token
 	{
 		$this->ci =& get_instance();
 		$this->ci->load->config('jwt');
+		$this->ci->load->helper('starterkit');
 
 		$this->key = $this->ci->config->item('jwt_key');
 		$this->algorithm = $this->ci->config->item('jwt_algorithm');
@@ -58,7 +59,7 @@ class Token
 			$this->set_cookie($token, $nip);
 			$body = array('token' => $token,
 				'expired' => $exp);
-			return $this->res($body, 200);
+			return for_response($body, 200);
 		}
 	}
 
@@ -73,9 +74,9 @@ class Token
 				$device = $this->valid_device($decode);
 				$nip = $this->get_nip();
 				if(($device['code'] == 200) && ($nip == $user)) {
-					return $this->res('Token is valid');
+					return for_response('Token is valid');
 				} else { 
-					return $this->res('Access forbidden!', 403); 
+					return for_response('Access forbidden!', 403); 
 				}
 			} else { 
 				if($decode['body']['message'] === 'Expired token') {
@@ -105,9 +106,9 @@ class Token
 		try {
 			$encode = JWT::encode($data, $this->key, $this->algorithm);
 			$body['token'] = $encode;
-			$res = $this->res($body, 200);
+			$res = for_response($body, 200);
 		} catch(Exception $err) {
-			$res = $this->res($err->getMessage(), 500);
+			$res = for_response($err->getMessage(), 500);
 		}
 		return $res;
 	}
@@ -118,9 +119,9 @@ class Token
 			$key = new Key($this->key, $this->algorithm);
 			$decoded = JWT::decode($token, $key);
 			$body['data'] = $decoded;
-			$res = $this->res($body, 200);
+			$res = for_response($body, 200);
 		} catch(Exception $err) {
-			$res = $this->res($err->getMessage(), 403);
+			$res = for_response($err->getMessage(), 403);
 		}
 		return $res;
 	}
@@ -167,10 +168,10 @@ class Token
 		$this->ci->load->helper('cookie');
 		$cookie = get_cookie($this->name_cookie);
 		if(empty($cookie)) {
-			return $this->res('Token not found', 404);
+			return for_response('Token not found', 404);
 		} else {
 			$body['token'] = $cookie;
-			return $this->res($body);
+			return for_response($body);
 		}
 	}
 
@@ -191,15 +192,15 @@ class Token
 		if(!empty($head) && is_array($head)) {
 			$config_head = ucfirst(trim($this->header));
 			if(empty($head[$config_head])) {
-				return $this->res('Access forbidden!', 403);
+				return for_response('Access forbidden!', 403);
 			} else {
 				$bearer = $head[$config_head];
 				$token = explode(" ", $bearer)[1];
 				$body['token'] = $token;
-				return $this->res($body);
+				return for_response($body);
 			}
 		} else {
-			return $this->res('Access forbidden!', 403);
+			return for_response('Access forbidden!', 403);
 		}
 	}
 
@@ -215,9 +216,9 @@ class Token
 				$nip = $this->get_nip();
 				if(($device['code'] == 200) && ($nip == $user)) {
 					$this->set_cookie($token, $nip);
-					return $this->res('Token is valid');
+					return for_response('Token is valid');
 				} else { 
-					return $this->res('Access forbidden!', 403); 
+					return for_response('Access forbidden!', 403); 
 				}
 			} else { 
 				if($decode['body']['message'] === 'Expired token') {
@@ -236,33 +237,11 @@ class Token
 		$user_agent = $this->get_device();
 		$sub = $decode['body']['data']->sub;
 		if($user_agent !== $sub) {
-			return $this->res('Access forbidden!', 403);
+			return for_response('Access forbidden!', 403);
 		} else {
 			$body = array('platform' => $sub);
-			return $this->res($body);
+			return for_response($body);
 		}
-	}
-
-
-
-	// HELPER
-	private function res($data, $code = null)
-	{
-		if(!$code) {
-			$status = array('status' => true);
-			$code = 200;
-		} else {
-			$status = array('status' => ($code != 200) ? false : true);
-		}
-
-		$res['code'] = $code;
-		if(is_array($data)) {
-			$res['body'] = array_merge($status, $data);
-		} else {
-			$res['body'] = array_merge($status, 
-				array('message' => $data));
-		}
-		return $res;
 	}
 }
 ?>

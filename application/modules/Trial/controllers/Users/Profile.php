@@ -5,7 +5,7 @@ require APPPATH."libraries/RestController.php";
 
 use chriskacerguis\RestServer\RestController;
 
-class App extends RestController 
+class Profile extends RestController 
 {
 	var $nip;
 	function __construct()
@@ -19,20 +19,6 @@ class App extends RestController
 			$this->response($auth['body'], $auth['code']);
 			die();
 		}
-	}
-
-	function logout_get()
-	{
-		$log = $this->token->destroy();
-		$res['status'] = true;
-		$res['message'] = 'logout';
-		$this->response($res);
-	}
-
-	function valid_get()
-	{
-		$get = $this->token->validate();
-		$this->response($get['body'], $get['code']);
 	}
 
 	function index_get()

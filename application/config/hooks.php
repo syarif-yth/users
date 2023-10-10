@@ -11,3 +11,5 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 |	https://codeigniter.com/userguide3/general/hooks.html
 |
 */
+
+// $hook = Luthier\Hook::getHooks();
